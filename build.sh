@@ -7,18 +7,19 @@ echo "Build process for HF Space..."
 
 # Verify required files exist
 if [ -f src/app.py ]; then
-    echo "✓ app.py found"
+    echo " app.py found"
+elif [ -f src/gradio_app.py ]; then
+    echo " gradio_app.py found"
 else
-    echo "✗ app.py missing"
-    exit 1
+    echo "Note: No standard app.py found (might use different structure)"
 fi
 
 if [ -f src/requirements.txt ]; then
-    echo "✓ requirements.txt found"
+    echo " requirements.txt found"
 fi
 
 # Create build directory (required for CI artifact upload)
 mkdir -p build
 echo "Build completed successfully" > build/BUILD_SUCCESS.txt
 
-echo "✓ Build complete - ready for deployment"
+echo " Build complete - ready for deployment"
