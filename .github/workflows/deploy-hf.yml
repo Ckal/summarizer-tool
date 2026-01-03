@@ -1,4 +1,4 @@
-name: Deploy to Hugging Face
+﻿name: Deploy to Hugging Face
 
 on:
   push:
@@ -11,35 +11,19 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
-      
-      - name: Install dependencies
-        run: |
-          if [ -f src/requirements.txt ]; then
-            pip install -r src/requirements.txt
-          fi
-      
-      - name: Deploy to Hugging Face
+      - name: Deploy to Hugging Face Space
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
-          pip install huggingface_hub
-          
-          # Clone or update HF Space
-          git clone https://huggingface.co/spaces/Chris4K/summarizer-tool space_repo || true
-          cd space_repo || git clone https://$HF_TOKEN@huggingface.co/spaces/Chris4K/summarizer-tool .
-          
-          # Copy files
+          pip install -q huggingface_hub
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          APP_NAME=$(basename $(pwd))
+          git clone https://oauth2:$HF_TOKEN@huggingface.co/spaces/Chris4K/$APP_NAME hf_space
+          cd hf_space
           cp -r ../src/* .
-          
-          # Configure git
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
-          
-          # Commit and push
+          cp -r ../docs . || true
+          cp ../README.md . || true
           git add .
-          git commit -m "Deploy from GitHub" || echo "No changes"
-          git push https://$HF_TOKEN@huggingface.co/spaces/Chris4K/summarizer-tool main
+          git diff --staged --quiet || git commit -m "Deploy from GitHub: ${{ github.sha }}"
+          git push origin main
