@@ -1,0 +1,45 @@
+name: Deploy to Hugging Face
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      
+      - name: Install dependencies
+        run: |
+          if [ -f src/requirements.txt ]; then
+            pip install -r src/requirements.txt
+          fi
+      
+      - name: Deploy to Hugging Face
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          pip install huggingface_hub
+          
+          # Clone or update HF Space
+          git clone https://huggingface.co/spaces/Chris4K/summarizer-tool space_repo || true
+          cd space_repo || git clone https://$HF_TOKEN@huggingface.co/spaces/Chris4K/summarizer-tool .
+          
+          # Copy files
+          cp -r ../src/* .
+          
+          # Configure git
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          
+          # Commit and push
+          git add .
+          git commit -m "Deploy from GitHub" || echo "No changes"
+          git push https://$HF_TOKEN@huggingface.co/spaces/Chris4K/summarizer-tool main

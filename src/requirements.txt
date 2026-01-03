@@ -1,0 +1,6 @@
+smolagents
+transformers>=4.29.0
+gradio
+#diffusers
+#accelerate
+torch

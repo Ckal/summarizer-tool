@@ -1,0 +1,5 @@
+{
+  "description": "Based on a text input this tool is able to analyse the sentiment of the given text. It returns a json with the sentiment.",
+  "name": "sentiment_analysis",
+  "tool_class": "sentiment_analysis.SentimentAnalysisTool"
+}
